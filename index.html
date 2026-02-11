@@ -2,146 +2,138 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jadwal Kuliah Presisi 10 Menit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jadwal Kuliah Semester 6</title>
     <style>
         :root {
             --bg-header: #d1e1eb;
             --bg-time: #f8f9fa;
             --border-color: #dee2e6;
-            --line-30m: #dadada; 
-            --line-10m: #f0f0f0; 
+            --line-30m: #dadada;
+            --line-10m: #f0f0f0;
             --course-blue: #74a4c1;
             --text-white: #ffffff;
-            --row-height: 0.7rem; 
+            --row-height: 1rem; /* Sedikit lebih tinggi agar nyaman di jari */
         }
 
         body { 
-            font-family: 'Segoe UI', Arial, sans-serif; 
-            margin: 0; padding: 20px; 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            margin: 0; padding: 0; 
             background-color: #f4f7f9; 
-            display: flex; flex-direction: column; align-items: center;
+            display: flex; flex-direction: column; 
+            height: 100vh; overflow: hidden;
+        }
+
+        h3 { 
+            text-align: center; color: #444; margin: 10px 0; font-size: 1rem; 
+        }
+
+        /* Container Scroll agar enak di HP */
+        .wrapper {
+            flex: 1;
+            overflow: auto; /* Memungkinkan scroll vertikal & horizontal */
+            border-top: 1px solid var(--border-color);
+            -webkit-overflow-scrolling: touch;
         }
 
         .schedule-container {
             display: grid;
-            grid-template-columns: 60px repeat(7, 1fr);
+            /* Di HP, kolom hari kita beri lebar minimal 120px agar tidak gepeng */
+            grid-template-columns: 50px repeat(7, minmax(120px, 1fr));
             grid-template-rows: 40px repeat(66, var(--row-height)); 
-            border: 1px solid var(--border-color);
-            background-color: #fff;
-            width: 100%;
-            max-width: 1100px;
-            overflow-x: auto;
             position: relative;
-
-            /* GARIS BACKGROUND */
+            background-color: #fff;
             background-image: 
-                linear-gradient(var(--line-30m) 1px, transparent 1px), 
-                linear-gradient(var(--line-10m) 1px, transparent 1px); 
-            background-size: 
-                100% calc(var(--row-height) * 3),
-                100% var(--row-height);           
+                linear-gradient(var(--line-30m) 1px, transparent 1px),
+                linear-gradient(var(--line-10m) 1px, transparent 1px);
+            background-size: 100% calc(var(--row-height) * 3), 100% var(--row-height);
             background-position: 0 40px;
+            width: max-content; /* Mengikuti isi agar bisa di-scroll horizontal */
+            min-width: 100%;
         }
 
+        /* Membuat Header Hari Sticky (Tetap di atas) */
         .header { 
-            background: var(--bg-header); 
-            font-weight: bold; border-right: 1px solid #fff;
-            border-bottom: 2px solid var(--border-color);
+            background: var(--bg-header); font-weight: bold; 
+            border-right: 1px solid #fff; border-bottom: 2px solid var(--border-color);
             display: flex; align-items: center; justify-content: center; 
-            font-size: 10px; z-index: 20;
+            font-size: 11px; z-index: 30;
+            position: sticky; top: 0;
         }
 
+        /* Membuat Kolom Jam Sticky (Tetap di kiri) */
         .time-slot { 
-            background: var(--bg-time); 
-            border-right: 2px solid var(--border-color); 
+            background: var(--bg-time); border-right: 2px solid var(--border-color); 
             display: flex; align-items: center; justify-content: center; 
             font-size: 10px; font-weight: bold; color: #555;
-            position: relative; z-index: 10;
-        
+            position: sticky; left: 0; z-index: 25;
             border-bottom: 1px solid var(--line-30m);
         }
 
-        .day-column-border {
-            grid-row: 2 / -1;
-            border-right: 1px solid var(--border-color);
-            pointer-events: none; z-index: 1;
-        }
-
+        /* Kartu Mata Kuliah */
         .course-card {
-            background-color: var(--course-blue);
-            color: var(--text-white);
-            margin: 1px 3px; padding: 4px;
-            border-radius: 4px; font-size: 9px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex; flex-direction: column; justify-content: center;
-            z-index: 15; overflow: hidden;
-            border-left: 3px solid rgba(0,0,0,0.2);
+            background-color: var(--course-blue); color: var(--text-white);
+            margin: 1px 2px; padding: 6px 4px; border-radius: 4px; 
+            font-size: 10px; font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+            display: flex; flex-direction: column; justify-content: center; 
+            z-index: 15; border-left: 4px solid rgba(0,0,0,0.2);
+            overflow: hidden; line-height: 1.2;
         }
 
-        .course-title { font-weight: bold; margin-bottom: 2px; border-bottom: 1px solid rgba(255,255,255,0.3); }
+        .course-title { 
+            font-weight: 800; margin-bottom: 3px; 
+            border-bottom: 1px solid rgba(255,255,255,0.4); 
+            padding-bottom: 2px; text-transform: uppercase;
+            font-size: 9px;
+        }
 
-
-        /* SENIN: Kripto 09:30 - 11:20 */
+        /* POSISI MATA KULIAH */
         .kripto-senin { grid-column: 2; grid-row: 17 / 28; } 
-
-        /* SELASA: Kripto 09:00 - 09:50 | ML 10:00 - 11:40 */
         .kripto-selasa { grid-column: 3; grid-row: 14 / 19; } 
         .ml-selasa { grid-column: 3; grid-row: 20 / 30; } 
-
-        /* RABU: Prak ML 07:00 - 10:00 | IMK 16:00 - 16:50 */
         .prak-ml-rabu { grid-column: 4; grid-row: 2 / 20; } 
         .imk-rabu { grid-column: 4; grid-row: 56 / 61; } 
-
-        /* KAMIS: ML 13:00 - 13:50 | IMK 15:00 - 16:40 */
         .ml-kamis { grid-column: 5; grid-row: 38 / 43; } 
         .imk-kamis { grid-column: 5; grid-row: 50 / 60; } 
-
-        /* JUMAT: Mobile 08:30 - 10:10 | Mobile 10:30 - 11:20 */
         .mob-jumat-1 { grid-column: 6; grid-row: 11 / 21; } 
         .mob-jumat-2 { grid-column: 6; grid-row: 23 / 28; } 
 
-        @media (max-width: 600px) { .schedule-container { min-width: 800px; } }
     </style>
 </head>
 <body>
+    <h3>JADWAL KULIAH SEMESTER 6</h3>
+    
+    <div class="wrapper">
+        <div class="schedule-container">
+            <div class="header" style="left:0; z-index:40;">JAM</div>
+            <div class="header">SENIN</div><div class="header">SELASA</div><div class="header">RABU</div>
+            <div class="header">KAMIS</div><div class="header">JUM'AT</div><div class="header">SABTU</div><div class="header">MINGGU</div>
 
-    <h2>Jadwal Kuliah Semester Baru</h2>
+            <div class="time-slot" style="grid-row: 2 / 8">07:00</div>
+            <div class="time-slot" style="grid-row: 8 / 14">08:00</div>
+            <div class="time-slot" style="grid-row: 14 / 20">09:00</div>
+            <div class="time-slot" style="grid-row: 20 / 26">10:00</div>
+            <div class="time-slot" style="grid-row: 26 / 32">11:00</div>
+            <div class="time-slot" style="grid-row: 32 / 38">12:00</div>
+            <div class="time-slot" style="grid-row: 38 / 44">13:00</div>
+            <div class="time-slot" style="grid-row: 44 / 50">14:00</div>
+            <div class="time-slot" style="grid-row: 50 / 56">15:00</div>
+            <div class="time-slot" style="grid-row: 56 / 62">16:00</div>
+            <div class="time-slot" style="grid-row: 62 / 68">17:00</div>
 
-    <div class="schedule-container">
-        <div class="header">JAM</div>
-        <div class="header">SENIN</div><div class="header">SELASA</div><div class="header">RABU</div>
-        <div class="header">KAMIS</div><div class="header">JUM'AT</div><div class="header">SABTU</div><div class="header">MINGGU</div>
-
-        <div class="day-column-border" style="grid-column: 2;"></div>
-        <div class="day-column-border" style="grid-column: 3;"></div>
-        <div class="day-column-border" style="grid-column: 4;"></div>
-        <div class="day-column-border" style="grid-column: 5;"></div>
-        <div class="day-column-border" style="grid-column: 6;"></div>
-        <div class="day-column-border" style="grid-column: 7;"></div>
-
-        <div class="time-slot" style="grid-row: 2 / 8">07:00</div>
-        <div class="time-slot" style="grid-row: 8 / 14">08:00</div>
-        <div class="time-slot" style="grid-row: 14 / 20">09:00</div>
-        <div class="time-slot" style="grid-row: 20 / 26">10:00</div>
-        <div class="time-slot" style="grid-row: 26 / 32">11:00</div>
-        <div class="time-slot" style="grid-row: 32 / 38">12:00</div>
-        <div class="time-slot" style="grid-row: 38 / 44">13:00</div>
-        <div class="time-slot" style="grid-row: 44 / 50">14:00</div>
-        <div class="time-slot" style="grid-row: 50 / 56">15:00</div>
-        <div class="time-slot" style="grid-row: 56 / 62">16:00</div>
-        <div class="time-slot" style="grid-row: 62 / 68">17:00</div>
-
-        <div class="course-card kripto-senin"><span class="course-title">Kriptografi & Siber</span>09:30 - 11:20</div>
-        <div class="course-card kripto-selasa"><span class="course-title">Kriptografi</span>09:00 - 09:50</div>
-        <div class="course-card ml-selasa"><span class="course-title">Pembelajaran Mesin</span>10:00 - 11:40</div>
-        <div class="course-card prak-ml-rabu"><span class="course-title">Prak. Pembelajaran Mesin</span>07:00 - 10:00</div>
-        <div class="course-card imk-rabu"><span class="course-title">IMK</span>16:00 - 16:50</div>
-        <div class="course-card ml-kamis"><span class="course-title">Pembelajaran Mesin</span>13:00 - 13:50</div>
-        <div class="course-card imk-kamis"><span class="course-title">IMK</span>15:00 - 16:40</div>
-        <div class="course-card mob-jumat-1"><span class="course-title">Pemrog. Bergerak</span>08:30 - 10:10</div>
-        <div class="course-card mob-jumat-2"><span class="course-title">Pemrog. Bergerak</span>10:30 - 11:20</div>
+            <div class="course-card kripto-senin"><span class="course-title">Kriptografi & Siber</span>09:30 - 11:20</div>
+            <div class="course-card kripto-selasa"><span class="course-title">Kriptografi</span>09:00 - 09:50</div>
+            <div class="course-card ml-selasa"><span class="course-title">Pembelajaran Mesin</span>10:00 - 11:40</div>
+            <div class="course-card prak-ml-rabu"><span class="course-title">Prak. ML</span>07:00 - 10:00</div>
+            <div class="course-card imk-rabu"><span class="course-title">IMK</span>16:00 - 16:50</div>
+            <div class="course-card ml-kamis"><span class="course-title">Pembelajaran Mesin</span>13:00 - 13:50</div>
+            <div class="course-card imk-kamis"><span class="course-title">IMK</span>15:00 - 16:40</div>
+            <div class="course-card mob-jumat-1"><span class="course-title">Pemrog. Bergerak</span>08:30 - 10:10</div>
+            <div class="course-card mob-jumat-2"><span class="course-title">Pemrog. Bergerak</span>10:30 - 11:20</div>
+        </div>
     </div>
 
+    <p style="font-size: 8px; text-align: center; color: #999; margin: 5px;">*Geser layar ke samping untuk melihat hari lain</p>
 </body>
 </html>
